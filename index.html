@@ -15,13 +15,17 @@
             output.textContent = 'جارٍ إرسال الطلب...';
 
             try {
-                const response = await fetch('https://eu.thtk.temu.com', {
+                const requestBody = 'page_sn=10005&page_id=10005_1780477186201_y2uc0notje&_x_sessn_id=fsoj279u22&cli_region=60&cli_language=en&cli_currency=EGP&cli_timezone=Africa%2FCairo&page_el_sn=200369&op=impr&time=1780477192386&log_id=17804771923865g5ug1jstfanm9rz&screen_width=1680&screen_height=1050&dpr=2&platform=browser&plat_type=pc&storage_fp=GWiVbWRev8iev_iez1DzM%23a6lecSpcJe2ccjhHGD-eo&dcf=.25.2240647920&os_language=en-US&bg_id=luALbUSJfttrc8TtIXNK05VU1AYHK8aS&_ck_h_sequ=24&report_method=1';
+
+                const response = await fetch('https://eu.thtk.temu.com/c/th', {
                     method: 'POST',
+                    mode: 'cors',
+                    credentials: 'include',
                     headers: {
-                        'Accept': 'application/json',
+                        'Accept': '*/*',
+                        'Content-Type': 'text/plain;charset=UTF-8',
                     },
-                    // أزل credentials إذا لم تكن هناك حاجة فعلية لإرسال الكوكيز
-                    // credentials: 'include',
+                    body: requestBody,
                 });
 
                 if (!response.ok) {
@@ -35,8 +39,10 @@
                     data = await response.json();
                     output.textContent = JSON.stringify(data, null, 2);
                 } else {
-                    data = await response.text();
-                    output.textContent = data;
+                    const buffer = await response.arrayBuffer();
+                    const decoder = new TextDecoder('utf-8', { fatal: false });
+                    data = decoder.decode(buffer);
+                    output.textContent = data || `تم الاستجابة بنجاح (${buffer.byteLength} bytes)`;
                 }
             } catch (error) {
                 output.textContent = `فشل الطلب: ${error.message}`;
